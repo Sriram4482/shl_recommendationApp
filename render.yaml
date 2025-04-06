@@ -2,7 +2,9 @@ services:
   - type: web
     name: shl-recommendation-app
     env: python
-    buildCommand: ""
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
     startCommand: gunicorn main:app
     envVars:
       - key: FLASK_ENV
