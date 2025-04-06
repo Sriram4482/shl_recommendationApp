@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import List, Optional
@@ -120,99 +120,87 @@ class RecommendationRequest(BaseModel):
     text: str
     max_duration: Optional[int] = None
 
+class QueryRequest(BaseModel):
+    query: str
+
 def find_technologies(text: str) -> List[str]:
-    """Extract all technology keywords from text"""
     text_lower = text.lower()
     found_techs = set()
-    
-    # Check against all assessment technologies
     for assessment in assessments:
         for tech in assessment["technologies"]:
             if re.search(r'\b' + re.escape(tech.lower()) + r'\b', text_lower):
                 found_techs.add(tech.lower())
-    
     return list(found_techs)
 
 @app.post("/api/recommend")
 async def recommend(request: RecommendationRequest):
-    text = request.text.lower()
-    max_duration = request.max_duration
-    
-    # Find all matching assessments grouped by primary technology
+    return get_recommendations(request.text, request.max_duration)
+
+@app.post("/query")
+async def query_api(req: QueryRequest):
+    recommendations = get_recommendations(req.query)
+    return {
+        "answer": "Based on your query, we recommend the following SHL assessments:",
+        "source_documents": recommendations["assessments"]
+    }
+
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+def get_recommendations(text: str, max_duration: Optional[int] = None):
+    text_lower = text.lower()
     tech_assessments = defaultdict(list)
     all_matched = []
-    
+
     for assessment in assessments:
-        # Check if any technology matches
         tech_match = any(
-            re.search(r'\b' + re.escape(tech.lower()) + r'\b', text)
+            re.search(r'\b' + re.escape(tech.lower()) + r'\b', text_lower)
             for tech in assessment["technologies"]
         )
-        
-        # Check duration if specified
         duration_ok = True
         if max_duration:
             duration = int(assessment["duration"].replace('m', ''))
             duration_ok = duration <= max_duration
-        
+
         if tech_match and duration_ok:
-            # Find the primary technology (first one that matches the search)
             primary_tech = next(
-                (tech for tech in assessment["technologies"] 
-                 if re.search(r'\b' + re.escape(tech.lower()) + r'\b', text)),
+                (tech for tech in assessment["technologies"]
+                 if re.search(r'\b' + re.escape(tech.lower()) + r'\b', text_lower)),
                 assessment["technologies"][0]
             )
             tech_assessments[primary_tech.lower()].append(assessment)
             all_matched.append(assessment)
-    
-    # Get the found technologies in search order
-    found_techs = find_technologies(request.text)
-    
-    # If no specific technologies found, return top 10 from all matches
+
+    found_techs = find_technologies(text)
     if not found_techs:
         return {
             "technologies": [],
-            "assessments": [{
-                "name": a["name"],
-                "url": a["url"],
-                "technologies": a["technologies"],
-                "duration": a["duration"],
-                "type": a["type"],
-                "remote": a["remote"],
-                "adaptive": a["adaptive"]
-            } for a in all_matched[:10]]
+            "assessments": [a for a in all_matched[:10]]
         }
-    
-    # Calculate how many recommendations per technology
+
     tech_counts = {}
     remaining = 10
-    num_techs = len(found_techs)
-    
-    # First pass: give each tech at least one recommendation
     for tech in found_techs:
         available = len(tech_assessments.get(tech, []))
         if available > 0:
             tech_counts[tech] = 1
             remaining -= 1
-    
-    # Second pass: distribute remaining recommendations proportionally
+
     if remaining > 0:
         total_available = sum(
             min(len(tech_assessments.get(tech, [])), 10) - tech_counts.get(tech, 0)
             for tech in found_techs
         )
-        
         if total_available > 0:
             for tech in found_techs:
                 available = len(tech_assessments.get(tech, [])) - tech_counts.get(tech, 0)
                 if available > 0:
                     share = max(1, round(available / total_available * remaining))
                     tech_counts[tech] = tech_counts.get(tech, 0) + min(share, available)
-    
-    # Build the final recommendations list
+
     recommendations = []
     used_assessments = set()
-    
     for tech in found_techs:
         if tech in tech_assessments:
             count = tech_counts.get(tech, 0)
@@ -220,38 +208,17 @@ async def recommend(request: RecommendationRequest):
                 if count <= 0:
                     break
                 if assessment["name"] not in used_assessments:
-                    recommendations.append({
-                        "name": assessment["name"],
-                        "url": assessment["url"],
-                        "technologies": assessment["technologies"],
-                        "duration": assessment["duration"],
-                        "type": assessment["type"],
-                        "remote": assessment["remote"],
-                        "adaptive": assessment["adaptive"]
-                    }) 
+                    recommendations.append(assessment)
                     used_assessments.add(assessment["name"])
                     count -= 1
-    
-    # If we still have room (due to duplicates), fill from other matches
+
     if len(recommendations) < 10 and len(all_matched) > len(recommendations):
         for assessment in all_matched:
             if assessment["name"] not in used_assessments and len(recommendations) < 10:
-                recommendations.append({
-                    "name": assessment["name"],
-                    "url": assessment["url"],
-                    "technologies": assessment["technologies"],
-                    "duration": assessment["duration"],
-                    "type": assessment["type"],
-                    "remote": assessment["remote"],
-                    "adaptive": assessment["adaptive"]
-                })
+                recommendations.append(assessment)
                 used_assessments.add(assessment["name"])
-    
+
     return {
         "technologies": found_techs,
-        "assessments": recommendations[:10]  # Ensure we don't exceed 10
+        "assessments": recommendations[:10]
     }
-
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})     
