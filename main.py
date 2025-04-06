@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, Request, Query
 from pydantic import BaseModel
 from typing import List, Optional
 import re
@@ -147,6 +148,10 @@ async def query_api(req: QueryRequest):
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/api/recommend")
+async def recommend_get(text: str = Query(...), max_duration: int = 60):
+    return get_recommendations(text, max_duration)
 
 def get_recommendations(text: str, max_duration: Optional[int] = None):
     text_lower = text.lower()
