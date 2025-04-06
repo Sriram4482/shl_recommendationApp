@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHL Assessment Matchmaker | AI-Powered Recommendations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #c7d2fe;
+            --secondary: #f59e0b;
+            --accent: #10b981;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --error: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --shadow-sm: 0 1px 3px rgba(99, 102, 241, 0.12);
+            --shadow-md: 0 4px 6px rgba(99, 102, 241, 0.1);
+            --shadow-lg: 0 10px 25px rgba(99, 102, 241, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-accent: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+            color: var(--dark);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header Styles */
+        header {
+            background: white;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.75rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 5rem 0 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -10%;
+            width: 120%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+            padding: 2rem 0 5rem;
+            position: relative;
+        }
+
+        /* Input Card */
+        .input-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 3rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .input-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gradient-primary);
+        }
+
+        .input-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.15);
+        }
+
+        .card-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.75rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .card-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .card-header p {
+            color: var(--gray);
+            font-size: 1.05rem;
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 1.05rem;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            height: 200px;
+            padding: 1.25rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s;
+            resize: vertical;
+            line-height: 1.6;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .input-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .input-row input[type="number"] {
+            padding: 0.875rem 1.25rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+            width: 120px;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .input-row input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .input-row span {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem 2.25rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn i {
+            font-size: 1rem;
+        }
+
+        /* Results Section */
+        .results-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 3rem;
+            display: none;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .results-header h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--dark);
+            position: relative;
+            display: inline-block;
+        }
+
+        .results-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .results-count {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 700;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .tech-tag {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+
+        .tech-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .assessments-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 2rem;
+        }
+
+        .assessments-table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.25rem 1.75rem;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .assessments-table thead th:first-child {
+            border-top-left-radius: var(--radius-md);
+        }
+
+        .assessments-table thead th:last-child {
+            border-top-right-radius: var(--radius-md);
+        }
+
+        .assessments-table tbody tr {
+            transition: all 0.2s;
+        }
+
+        .assessments-table tbody tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .assessments-table td {
+            padding: 1.5rem 1.75rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .assessment-link {
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .assessment-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+
+        .badge:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .badge i {
+            font-size: 0.7rem;
+        }
+
+        .badge-duration {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+
+        .badge-remote {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .badge-adaptive {
+            background: #f5f3ff;
+            color: #5b21b6;
+            border: 1px solid #ddd6fe;
+        }
+
+        .badge-type {
+            background: #fdf2f8;
+            color: #9d174d;
+            border: 1px solid #fbcfe8;
+        }
+
+        /* Loading State */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 0;
+            gap: 2rem;
+        }
+
+        .spinner {
+            width: 3.5rem;
+            height: 3.5rem;
+            border: 4px solid var(--primary-light);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.25rem;
+            color: var(--gray);
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Error State */
+        .error-state {
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .error-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            color: var(--error);
+        }
+
+        .error-header i {
+            font-size: 1.5rem;
+        }
+
+        .error-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .error-message {
+            color: var(--gray);
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            padding: 3rem 0;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copyright {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.875rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .social-link {
+            color: white;
+            font-size: 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            color: var(--primary-light);
+            transform: translateY(-3px);
+        }
+
+        /* Floating Elements */
+        .floating {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.1);
+            z-index: -1;
+        }
+
+        .floating-1 {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            right: -100px;
+        }
+
+        .floating-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            .hero {
+                padding: 3rem 0 2rem;
+            }
+
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .input-card, .results-card {
+                padding: 2rem;
+            }
+
+            .input-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .assessments-table td {
+                padding: 1.25rem;
+            }
+
+            .badge-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <i class="fas fa-robot logo-icon"></i>
+                    <span class="logo-text">SHL Matchmaker</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>AI-Powered SHL Assessment Recommendations</h1>
+            <p>Discover the perfect assessments for your hiring needs with our intelligent matching system</p>
+            <div class="floating floating-1"></div>
+            <div class="floating floating-2"></div>
+        </section>
+
+        <div class="main-content">
+            <div class="input-card">
+                <div class="card-header">
+                    <h2>Find Your Ideal Assessment</h2>
+                    <p>Let our AI analyze your job description and recommend the most suitable SHL assessments</p>
+                </div>
+                
+                <div class="input-group">
+                    <label for="jobDesc"><i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i> Job Description</label>
+                    <textarea id="jobDesc" placeholder="Paste the job description here to get started..."></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="maxDuration"><i class="fas fa-clock" style="margin-right: 0.5rem;"></i> Assessment Duration Limit</label>
+                    <div class="input-row">
+                        <input type="number" id="maxDuration" value="60" min="10" max="180">
+                        <span>minutes</span>
+                        <button id="recommendBtn" class="btn">
+                            <i class="fas fa-magic"></i> Generate Recommendations
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-card" id="results">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p class="copyright">© 2023 SHL Assessment Matchmaker. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function highlightKeywords(text, keywords) {
+            if (!text) return '<em>No description entered</em>';
+            
+            let result = text;
+            keywords.forEach(keyword => {
+                const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+                result = result.replace(regex, match => `<span class="highlight" style="background-color: #e0e7ff; padding: 0.1rem 0.3rem; border-radius: 4px; font-weight: 500;">${match}</span>`);
+            });
+            return result;
+        }
+
+        async function getRecommendations() {
+            const jobDesc = document.getElementById('jobDesc').value;
+            const maxDuration = document.getElementById('maxDuration').value;
+            const resultsDiv = document.getElementById('results');
+            const recommendBtn = document.getElementById('recommendBtn');
+            
+            // Save original button text
+            const originalBtnText = recommendBtn.innerHTML;
+            
+            // Show loading state
+            recommendBtn.disabled = true;
+            recommendBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing...`;
+            
+            // Show results section
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Our AI is analyzing your job description and finding the most suitable assessments...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/api/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: jobDesc,
+                        max_duration: parseInt(maxDuration)
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server responded with status ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.assessments.length === 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="error-state">
+                            <div class="error-header">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span class="error-title">No Matching Assessments Found</span>
+                            </div>
+                            <p class="error-message">We couldn't find any assessments matching your criteria. Try adjusting your search terms or increasing the duration limit.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = `
+                    <div class="results-header">
+                        <h2>Your Recommended Assessments</h2>
+                        <span class="results-count">${data.assessments.length} matches found</span>
+                    </div>
+                    <table class="assessments-table">
+                        <thead>
+                            <tr>
+                                <th>Assessment</th>
+                                <th>Technologies</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                data.assessments.forEach(assessment => {
+                    html += `
+                        <tr>
+                            <td>
+                                <a href="${assessment.url}" target="_blank" class="assessment-link">
+                                    <i class="fas fa-clipboard-check" style="color: var(--primary);"></i>
+                                    ${assessment.name}
+                                    <i class="fas fa-external-link-alt" style="margin-left: 0.5rem; font-size: 0.75rem;"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <div class="tech-tags">
+                                    ${assessment.technologies.map(tech => 
+                                        `<span class="tech-tag">${tech}</span>`
+                                    ).join('')}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="badge-container">
+                                    <span class="badge badge-duration">
+                                        <i class="fas fa-clock"></i> ${assessment.duration} min
+                                    </span>
+                                    <span class="badge badge-remote">
+                                        <i class="fas fa-laptop-house"></i> Remote: ${assessment.remote}
+                                    </span>
+                                    <span class="badge badge-adaptive">
+                                        <i class="fas fa-robot"></i> Adaptive: ${assessment.adaptive}
+                                    </span>
+                                    <span class="badge badge-type">
+                                        <i class="fas fa-tag"></i> ${assessment.type}
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                        </tbody>
+                    </table>
+                `;
+                
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error-state">
+                        <div class="error-header">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span class="error-title">Recommendation Error</span>
+                        </div>
+                        <p class="error-message">${error.message}. Please try again or check your network connection.</p>
+                    </div>
+                `;
+            } finally {
+                // Restore button state
+                recommendBtn.disabled = false;
+                recommendBtn.innerHTML = originalBtnText;
+            }
+        }
+
+        // Add event listener to the button
+        document.getElementById('recommendBtn').addEventListener('click', getRecommendations);
+        
+        // Also allow form submission with Enter key in textarea
+        document.getElementById('jobDesc').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                getRecommendations();
+            }
+        });
+    </script>
+</body>
+</html>
